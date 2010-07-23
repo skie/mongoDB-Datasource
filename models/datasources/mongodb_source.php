@@ -252,7 +252,7 @@ class MongodbSource extends DataSource {
 		}
 		return false;
 	}
-
+	
 
 /**
  * Update Data
@@ -302,7 +302,7 @@ class MongodbSource extends DataSource {
  * @return boolean Update result
  * @access public
  */
-	public function updateAll (&$model, $fields = null,  $conditions = null) {
+	public function updateAll(&$model, $fields = null,  $conditions = null) {
 		$fields = array('$set' => $fields);
 		
 		$result = $this->_db
@@ -361,11 +361,6 @@ class MongodbSource extends DataSource {
 
 	}
 
-
-
-
-
-
 /**
  * Read Data
  *
@@ -377,11 +372,9 @@ class MongodbSource extends DataSource {
 	public function read(&$model, $query = array()) {
 		$query = $this->_setEmptyArrayIfEmpty($query);
 		extract($query);
-
 		if (!empty($order[0])) {
 			$order = array_shift($order);
 		}
-
 		if (!empty($conditions['_id']) && !is_object($conditions['_id'])) {
 			$conditions['_id'] = new MongoId($conditions['_id']);
 		}
@@ -418,6 +411,7 @@ class MongodbSource extends DataSource {
 			}
 			$results[][$model->alias] = $mongodata;
 		}
+
 		return $results;
 	}
 
@@ -440,6 +434,30 @@ class MongodbSource extends DataSource {
 			return empty($data) ? array() : $data;
 		}
 	}
+	
+/**
+ * Drop collection
+ *
+ * @param Model $model Model Instance
+ * @return array Results
+ * @access public
+ */
+	public function drop(&$model) {
+		return $this->_db->dropCollection($model->table);
+	}
 
+	
+/**
+ * Database Instance connection 
+ *
+ * @return array Results
+ * @access public
+ */
+	public function connection() {
+		return $this->_db;
+	}
+
+		
+	
 }
 ?>
