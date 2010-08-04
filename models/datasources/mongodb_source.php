@@ -275,7 +275,7 @@ class MongodbSource extends DataSource {
 		}
 		
 		if (!empty($data['_id']) && !is_object($data['_id'])) {
-			$data['_id'] = new MongoId($data['_id']);
+			$data['_id'] = $this->_toMongoId($data['_id']);
 		}
 
 		$mongoCollectionObj = $this->_db
@@ -337,7 +337,7 @@ class MongodbSource extends DataSource {
 		}
 		
 		if (!empty($id) && is_string($id)) {
-			$conditions['_id'] = new MongoId($id);
+			$conditions['_id'] = $this->_toMongoId($id);
 		}
 
 		$mongoCollectionObj = $this->_db
@@ -347,7 +347,7 @@ class MongodbSource extends DataSource {
 		if (!empty($conditions[$model->alias . '._id']) && is_array($conditions[$model->alias . '._id'])) {
 			//for Model::deleteAll()
 			foreach ($conditions[$model->alias . '._id'] as $val) {
-				$id = is_string($val) ? new MongoId($val) : $val;
+				$id = is_string($val) ? $this->_toMongoId($val) : $val;
 				if (!$mongoCollectionObj->remove(array('_id' => $id))) {
 					$result = false;
 				}
@@ -376,7 +376,7 @@ class MongodbSource extends DataSource {
 			$order = array_shift($order);
 		}
 		if (!empty($conditions['_id']) && !is_object($conditions['_id'])) {
-			$conditions['_id'] = new MongoId($conditions['_id']);
+			$conditions['_id'] = $this->_toMongoId($conditions['_id']);
 		}
 
 		$fields = (is_array($fields)) ? $fields : array($fields);
@@ -388,7 +388,7 @@ class MongodbSource extends DataSource {
 		 * Convert Post._id to _id and make a MongoId object
 		 */
 		if (!empty($conditions[$model->alias . '._id'])) {
-			$conditions['_id'] = new MongoId($conditions[$model->alias . '._id']);
+			$conditions['_id'] = $this->_toMongoId($conditions[$model->alias . '._id']);
 			unset($conditions[$model->alias . '._id']);
 		}
 
@@ -457,7 +457,14 @@ class MongodbSource extends DataSource {
 		return $this->_db;
 	}
 
-		
+	protected function _toMongoId($id) {
+		if (!is_object($id)) {
+			if (preg_match('/^[0-9a-f]{24}$/', (string)$id)) {
+				$id = new MongoId($id);
+			}
+		}
+		return $id;
+	}		
 	
 }
 ?>
